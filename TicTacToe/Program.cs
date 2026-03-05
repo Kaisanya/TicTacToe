@@ -11,48 +11,97 @@ namespace TicTacToe
     internal class Program
     {
         static char[,] board = new char[4, 4];
-        static char currentPlayer = 'X';
+        static char playerX = 'X';
+        static char playerO = 'O';
+
+        static int scoreX = 0;
+        static int scoreO = 0;
+
+        static char currentPlayer;
+
         static void Main(string[] args)
         {
-            InitializeBoard();
+            CustomizeSymbols();
 
             while (true)
             {
-                DrawBoard();
-                Console.WriteLine($"Ход игрока {currentPlayer}");
+                InitializeBoard();
+                currentPlayer = playerX;
 
-                Console.Write("Введите строку (1-3): ");
-                int row = int.Parse(Console.ReadLine());
-
-                Console.Write("Введите столбец (1-3): ");
-                int col = int.Parse(Console.ReadLine());
-
-                if (board[row, col] != ' ')
-                {
-                    Console.WriteLine("Клетка занята!");
-                    continue;
-                }
-
-                board[row, col] = currentPlayer;
-
-                if (CheckWin())
+                while (true)
                 {
                     DrawBoard();
-                    Console.WriteLine($"Игрок {currentPlayer} победил!");
-                    break;
+                    Console.WriteLine($"Ход игрока {currentPlayer}");
+
+                    int row, col;
+
+                    Console.Write("Введите строку (1-3): ");
+                    if (!int.TryParse(Console.ReadLine(), out row))
+                        continue;
+
+                    Console.Write("Введите столбец (1-3): ");
+                    if (!int.TryParse(Console.ReadLine(), out col))
+                        continue;
+
+                    if (row < 1 || row > 3 || col < 1 || col > 3)
+                        continue;
+
+                    if (board[row, col] != ' ')
+                    {
+                        Console.WriteLine("Клетка занята!");
+                        continue;
+                    }
+
+                    board[row, col] = currentPlayer;
+
+                    if (CheckWin())
+                    {
+                        DrawBoard();
+                        Console.WriteLine($"Игрок {currentPlayer} победил!");
+
+                        if (currentPlayer == playerX)
+                            scoreX++;
+                        else
+                            scoreO++;
+
+                        break;
+                    }
+
+                    if (CheckDraw())
+                    {
+                        DrawBoard();
+                        Console.WriteLine("Ничья!");
+                        break;
+                    }
+
+                    currentPlayer = currentPlayer == playerX ? playerO : playerX;
                 }
 
-                if (CheckDraw())
-                {
-                    DrawBoard();
-                    Console.WriteLine("Ничья!");
-                    break;
-                }
+                ShowScore();
 
-                currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
+                Console.WriteLine("Играть снова? (y/n)");
+                string answer = Console.ReadLine();
+
+                if (answer.ToLower() != "y")
+                    break;
+
+                Console.WriteLine("Хотите изменить символы? (y/n)");
+                answer = Console.ReadLine();
+
+                if (answer.ToLower() == "y")
+                    CustomizeSymbols();
             }
+        }
 
-            Console.ReadKey();
+        static void CustomizeSymbols()
+        {
+            Console.Write("Введите символ для игрока 1: ");
+            playerX = Console.ReadKey().KeyChar;
+            Console.WriteLine();
+
+            Console.Write("Введите символ для игрока 2: ");
+            playerO = Console.ReadKey().KeyChar;
+            Console.WriteLine();
         }
 
         static void InitializeBoard()
@@ -110,6 +159,13 @@ namespace TicTacToe
 
             return true;
         }
+
+        static void ShowScore()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Счёт:");
+            Console.WriteLine($"Игрок 1 ({playerX}) — {scoreX}");
+            Console.WriteLine($"Игрок 2 ({playerO}) — {scoreO}");
+        }
     }
 }
-       
